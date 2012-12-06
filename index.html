@@ -1,0 +1,983 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>reveal.js - The HTML Presentation Framework</title>
+
+    <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+    <meta name="author" content="Hakim El Hattab">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/serif.css" id="theme">
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+
+        <section>
+          <section>
+            <h1>Principios SOLID en Javascript</h1>
+            <h3>Con ejemplos práticos</h3>
+            <p>
+              <small>Por <a href="http://twitter.com/_frnz_">@_frnz_</a></small>
+              <small><A href="https://github.com/frnz">https://github.com/frnz</a></small>
+            </p>
+          </section>
+
+          <section>
+            <h1>Franz Pereira</h1>
+            <h2>Technology Lead</h2>
+            <img src="http://chicago.ourtiempo.com/wp-content/uploads/2011/10/New-Futuro-Logo-290x160.jpg">
+          </section>
+
+          <section>
+            <iframe src="http://www.newfuturo.com/"></iframe>
+          </section>
+
+          <section>
+            <img src="http://www.thegatenewspaper.com/publish_to_web_new_futuro/600_450/dsc_0377.jpg">
+          </section>
+          <section>
+            <img src="http://news.medill.northwestern.edu/uploadedImages/News/Chicago/Images/Urban/newfuturo_splash.jpg"/>
+          </section>
+
+
+          <section>
+            <iframe src="http://www.chicagoinnovationawards.com/winner/new-futuro/?y=2012"></iframe>
+          </section>
+        </section>
+
+        <section>
+          <h1>Motivación</h1>
+          <ul>
+            <li>El software es una ingeniería diferente.</li>
+            <li>En software, el diseño es lo caro.</li>
+            <li>Como ingenieros de software podemos cambiar el diseño cuando queramos.</li>
+            <li>Al ser iterativos nos volvemos más flexibles.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>¿Qué es SOLID?</h2>
+          <p>Un conjunto de buenas prácticas de OO para preparar el código a cambiar. Mantiene el código los liviano posible, pero preparándolo para poder hacer cambios con el más mínimo esfuerzo.</p>
+        
+        </section>
+
+        <section>
+          <h2>SOLID</h2>
+          <ol>
+            <li>Single Responsibility Principle</li>
+            <li>Open Closed Principle</li>
+            <li>Liskov Substitution Principle</li>
+            <li>Interface Segregation Principle</li>
+            <li>Dependency Inversion Principle</li>
+          </ol>
+        </section>
+
+        <section>
+          <img src="http://lostechies.com/derickbailey/files/2011/03/SingleResponsibilityPrinciple2_71060858.jpg"/>
+        </section>
+
+
+        <section>
+          <h2>Single Responsibility Principle</h2>
+          <blockquote>A class should have only one reason to change.</blockquote>
+          <p></p>
+          <q>Una clase sólo debería tener una razón para cambiar.</q>
+        </section>
+
+        <section>
+          <h1><q>Una razón para cambiar</q></h1>
+          <p>No es una cantidad de métodos, más bien agrupaciones de métodos que cumplen un objetivo</p>
+        </section>
+
+        <section>
+          <section>
+          <pre><code contenteditable width="1000">Cart = function(items) {
+
+  this.log = function(log) {
+    console.log(log)
+  },
+
+  this.calculateTotal = function() {
+    return items.sum("price") // sugar.js <3 <3 <3
+  },
+
+
+  this.displayInfo = function() {
+    this.log("Total is " + this.calculateTotal())
+
+    $("#total").html(total)
+  }
+
+}
+          </code></pre>
+          </section>
+          <section>
+            <iframe src="http://sugarjs.com/api/Array/sum"></iframe>
+          </section>
+        </section>
+
+        <section>
+          <h1>Nuevos requerimientos:</h1>
+          <ol>
+            <li>No escribir en los logs todo el tiempo.</li>
+            <li>Mostrar subtotal.</li>
+          </ol>
+        </section>
+
+        <section>
+          <pre><code contenteditable>Cart = function(items, options) {
+
+  this.log = function(log) {  
+    if (options.log) {         // D: D: D:
+      if (options.logActive) {
+        console.log(log)
+      }
+    }
+  },
+
+  this.calculateSubtotal = function() {
+    return items.sum("price")
+  },
+  this.calculateTotal = function() {...}
+
+  this.displayInfo =  function() {
+    this.log("Total is " + total)
+    $("#subTotal").html(this.calculateSubtotal())
+    $("#total").html(this.calculateTotal())
+  }
+
+}
+          </code></pre>
+        </section>
+
+        <section>
+          <h1>Requerimientos:</h1>
+          <ol>
+            <li>No escribir en los logs todo el tiempo.</li>
+            <li>Mostrar subtotal.</li>
+            <li>El subtotal se muestra dependiendo en qué página esté.</li>
+          </ol>
+        </section>
+
+        <section>
+          <pre><code contenteditable>Cart = function(items, options) {
+
+  this.log = function(log) {  
+    if (options.log) {         // D: D: D:
+      if (options.logActive) {
+        console.log(log)
+      }
+    }
+  },
+
+  this.calculateSubtotal = function() {
+    return items.sum("price")
+  },
+  this.calculateTotal = function() {...}
+
+  this.displayInfo =  function() {
+    this.log("Total is " + total)
+    if (options.showSubtotal) { // ლ(ಠ益ಠლ) 
+      $("#subTotal").html(this.calculateSubtotal())
+    }
+    $("#total").html(this.calculateTotal())
+  }
+
+}
+          </code></pre>
+        </section>
+
+        <section>
+          <section>
+            <embed src="img/cyclomatic_1.svg" type="image/svg+xml" />
+          </section>
+          <section>
+            <h1>Complejidad Ciclomática</h1>
+             <blockquote cite="http://en.wikipedia.org/wiki/Cyclomatic_complexity">...functions and methods that have the highest complexity tend to also contain the most defects.</blockquote>
+          </section>
+
+          <section>
+            <iframe src="http://jsmeter.info/"></iframe>
+          </section>
+
+          <section>
+            <h3>Cyclomatic Complexity:</h3>
+            <p class="red">6</p>
+            <h3>Maintainability index:</h3>
+            <p class="red">98.986</p>
+          </section>
+        </section>
+
+        <section>
+          <p>CartCalculator</p>
+          <pre><code>
+  CartCalculator = function(items) { 
+    this.subTotal = function() {
+      return this.items.sum("price")
+    }
+
+    this.total = function() {
+      return this.subTotal() + this.subTotal()*0.13 
+    } 
+  }
+
+</pre></code>
+
+        </section>
+
+        <section>
+          <p>Renderers</p>
+          <pre><code>
+CartInfoRenderer = function(cartCalculator) {
+  $("#total").html(cartCalculator.total()) 
+}
+
+CartPageInfoRenderer = function(cartCalculator) {
+  $("#subtotal").html(cartCalculator.subTotal())
+  $("#total").html(cartCalculator.total()) 
+}
+  
+</pre></code>
+
+        </section>
+
+
+        <section>
+          <p>Logger</p>
+          <pre><code>
+
+  Logger = function() {
+    this.log = function(message) {
+      if (DEBUG) {
+        console.log(message)
+      }
+    }
+  }
+    
+</pre></code>
+
+        </section>
+
+
+        <section>
+          <section>
+          <h1>Strategy Pattern</h1>
+          <q>In computer programming, the strategy pattern (also known as the policy pattern) is a particular software design pattern, whereby algorithms behaviour can be selected at runtime.</q> 
+        </section>
+
+          <section>
+            <embed src="img/cyclomatic_simple.svg" type="image/svg+xml" />
+          </section>
+          <section>
+            <embed src="img/cyclomatic_1.svg" type="image/svg+xml" />
+          </section>
+
+        </section>
+
+
+
+
+
+        <section>
+          <p>Controller</p>
+          <pre><code>
+  CartController = function(options) {
+    options ||= // default options
+
+    this.render = function() {
+      options.logger.log("Total is " + options.cart.total())
+      options.renderer(options.cart)
+    }
+  }
+
+  // Página de carrito:
+  Cart({renderer: CartPageInfoRenderer}).render() 
+  // Otras
+  Cart({renderer: CartInfoRenderer}).render()
+
+</pre></code>
+
+        </section>
+
+
+        <section>
+          <p>Ahí afuera: Backbone patterns:</p>
+          <iframe src="http://ricostacruz.com/backbone-patterns/#sub_views"></iframe>
+        </section>
+
+        <section>
+          <img src="http://lostechies.com/derickbailey/files/2011/03/SingleResponsibilityPrinciple2_71060858.jpg"/>
+        </section>
+
+        <section>
+          <img src="http://lostechies.com/derickbailey/files/2011/03/OpenClosedPrinciple2_2C596E17.jpg"/>
+        </section>
+
+
+
+        <section>
+          <h2>Open Closed principle</h2>
+          <blockquote>Software entities (classes, modules, functions, etc.) should be open for extension, but closed for modification.</blockquote>
+          <blockquote>Las entidades de software deberían estar abiertas a extensión, pero cerradas a modificación.</blockquote>
+          <p></p>
+        </section>
+
+        <section>
+          <h2>Open Closed Principle</h2>
+          <q>Se debería extender el comportamiento de una clase sin modificarlo.</q>
+        </section>
+
+        <section>
+          <h1>Node.js</h1>
+          <pre><code>
+  var http = require('http');
+  http.createServer(function (req, res) {
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end('Hello World\n');
+  }).listen(1337, '127.0.0.1');
+  console.log('Server running at http://127.0.0.1:1337/');
+          </code></pre>
+        </section>
+
+        <section>
+          <h1>Nuevos requerimientos:</h1>
+          <ol>
+            <li>Colocar una HTTP Auth.</li>
+          </ol>
+        </section>
+
+        <section>
+          <h1>Node.js</h1>
+          <pre><code>
+  var http = require('http');
+  http.createServer(function (req, res) {
+    var header=req.headers['authorization']||'',        
+      token=header.split(/\s+/).pop()||'',            
+      auth=new Buffer(token, 'base64').toString(),    
+      parts=auth.split(/:/),                        
+      username=parts[0],
+      password=parts[1];
+
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end('Hello World\n');
+  }).listen(1337, '127.0.0.1');
+  console.log('Server running at http://127.0.0.1:1337/');
+          </code></pre>
+        </section>
+
+        <section>
+          <h1>Nuevos requerimientos:</h1>
+          <ol>
+            <li>Colocar una HTTP Auth.</li>
+            <li>Proteger contra CSRF.</li>
+            <li>Loggear tiempos de respuesta.</li>
+          </ol>
+        </section>
+
+
+                <section>
+          <h1>Node.js</h1>
+          <pre><code>
+  var http = require('http');
+  http.createServer(function (req, res) {
+    var header=req.headers['authorization']||'',        
+      token=header.split(/\s+/).pop()||'',            
+      auth=new Buffer(token, 'base64').toString(),    
+      parts=auth.split(/:/),                        
+      username=parts[0],
+      password=parts[1];
+
+    // CSRF CODEZ @.@
+    // Incio tiempo de respuesta
+
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end('Hello World\n');
+
+    // Log tiempo de respuesta
+  }).listen(1337, '127.0.0.1');
+  console.log('Server running at http://127.0.0.1:1337/');
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Strategy Pattern?</h2>
+        </section>
+
+        <section>
+          <h1>Connect</h1>
+          <pre><code>
+
+  var app = connect()
+    .use(connect.csrf())
+    .use(connect.static('public'))
+    .use(function(req, res){
+      res.end('hello world\n');
+    })
+   .listen(3000);
+
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Prototypal chainability</h2>
+          <q>¿Encadenamiento prototípico?</q>
+        </section>
+
+        <section>
+          <h2>Cómo hacer uno:</h2>
+          <ol>
+            <li>Hacer un constructor.</li>
+            <li>Agregar métodos al prototypo del constructor.</li>
+            <li>Devolver una instancia del constructor.</li>
+        </section>
+
+        <section>
+          <pre><code>
+  (function ($) {
+    $.iDareYou = $.fn.iDareYou = function () {
+      return this;
+    }
+    $.iDoubleDareYou = $.fn.iDoubleDareYou = function () {
+      return this;
+    }
+    $.motherFucker = $.fn.motherFucker = function () {
+      return this;
+    }
+  })(jQuery);
+
+  $(function() {
+    // ZOMG!!! COMO SAMUEL L. JACKSON!!!
+    $("#title").hide().iDareYou().iDoubleDareYou().motherFucker()
+  });
+
+          </pre></code>
+        </section>
+
+        <section>
+          <img src="http://lostechies.com/derickbailey/files/2011/03/OpenClosedPrinciple2_2C596E17.jpg"/>
+        </section>
+
+        <section>
+          <img src="http://lostechies.com/derickbailey/files/2011/03/LiskovSubtitutionPrinciple_52BB5162.jpg"/>
+        </section>
+
+        <section>
+          <h2>Liskov Substitution Principle</h2>
+          <blockquote>Derived classes must be substitutable for their base classes.</blockquote>
+          <p>Las clases derivadas deben poder sustituirse por sus clases base.</p>
+        </section>
+
+        <section>
+          <section>
+            <p>Rectangle</p>
+            <pre><code>
+    class Rectangle
+      setWidth: (width) ->
+        @width = width
+
+      setHeight: (height) ->
+        @height = height
+
+      area: ->
+        @width * height
+
+rect = new Rectangle
+rect.setWidth(2)
+rect.setHeight(1)  
+rect.area() # 2 :D
+            </code></pre>
+          </section>
+          <section>
+            <pre><code>
+  var Rectangle;
+
+  Rectangle = (function() {
+    function Rectangle() {}
+    Rectangle.prototype.setWidth = function(width) {
+      return this.width = width;
+    };
+
+    Rectangle.prototype.setHeight = function(height) {
+      return this.height = height;
+    };
+
+    Rectangle.prototype.area = function() {
+      return this.width * height;
+    };
+
+    return Rectangle;
+
+  })();
+            </code></pre>
+</section>
+</section>
+
+  <section>
+        <section>
+          <p>Square</p>
+          <pre><code>
+  class Square extends Rectangle
+    setLength: (length) ->
+      @width = length
+      @height = length
+
+  sq = new Square
+  sq.setLength(2)
+  sq.area() # 4 |m|
+          </code></pre>
+        </section>
+        <section>
+          <pre><code>
+var Square, sq,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+Square = (function(_super) {
+
+  __extends(Square, _super);
+
+  function Square() {
+    return Square.__super__.constructor.apply(this, arguments);
+  }
+
+  Square.prototype.setLength = function(length) {
+    this.width = length;
+    return this.height = length;
+  };
+
+  return Square;
+
+})(Rectangle);
+
+sq = new Square;
+
+sq.setLength(2);
+
+sq.area();
+          </code></pre>
+        </section>
+      </section>
+
+        <section>
+          <p>Square</p>
+          <pre><code>
+  class Square extends Rectangle
+    setLength: (length) ->
+      @width = length
+      @height = length
+
+  sq = new Square
+  sq.setWidth(2)
+  sq.setHeight(1)  
+  sq.area() # 2 D: D: D:
+          </code></pre>
+        </section>
+
+        <section>
+          <p>Square</p>
+          <pre><code>
+  class Square extends Rectangle
+    setLength: (length) ->
+      @width = length
+      @height = length
+
+    setWidth: (length) ->
+      setLength(length) # Ok...
+
+    setHeight: (length) ->
+      setLength(length) # Ok...
+
+  sq = new Square
+  sq.setWidth(2)
+  sq.setHeight(1)  
+  sq.area() # 1... 
+
+          </code></pre>
+        </section>
+
+        <section>
+          <p>Si no se mantiene LSP, la jeraquías de clases empezarían a integrar métodos inútiles, y eventualmente
+            se convertirían en APIs difíciles de entender.
+          </p>
+          <p> &nbsp;</p>
+          <p>Sin LSP no se pueden crear pruebas unitarias que satisfagan toda la jerarquía de clases. Habría que estar rediseñando las pruebas.</p>
+    </section>
+
+        <section>
+          <h2>¿Cómo preever?</h2>
+          <ol>
+            <li>¿Las clases derivadas usan menos funcionalidad (o menos métodos) que la clase base?</li>
+            <li>Las clases base deberían tener la menor cantidad de métodos posibles.</li>
+            <li>Definir un API y construir pruebas que compruebe que no se viola el principio. Particular para API abiertas.</li>
+          </ol>
+        </section>
+
+        <section>
+          <iframe src="http://derbyjs.com/"></iframe>
+        </section>
+
+        <section>
+          <h3>No es sobre herencia, es sobre comportamiento.</h3>
+
+          <p><br>Faye.js sobre extensiones</p>
+          <blockquote>These methods should accept a message and a callback function, and should call the function with the message once they have made any modifications.</blockquote>
+        </section>
+
+        <section>
+          <iframe src="http://emberjs.com/"></iframe>
+        </section>
+
+        <section>
+          <h1>YAGNI</h1>
+          <h3>You ain't gonna need it</h3>
+        </section>
+
+        <section>
+          <img src="http://lostechies.com/derickbailey/files/2011/03/LiskovSubtitutionPrinciple_52BB5162.jpg"/>
+        </section>
+
+        <section>
+          <img src="http://www.codeproject.com/KB/architecture/SOLIDPrinciplesInOOD/dggn8fwf_33cq6mtncq_b.jpg" width="500"/>
+        </section>
+
+        <section>
+          <h2>Interface Segregation Principle</h2>
+          <blockquote>Make fine grained interfaces that are client specific.</blockquote>
+        </section>
+
+        <section>
+          <h2>Ehhh... ¿interfaces?</h2>
+          <h2>¿Javascript tiene?</h2>
+        </section>
+
+        <section>
+          <section>
+            <h2>Interface Segregation Principle</h2>
+            <p>Las entidades no deberían ser forzadas a depender de métodos que no usan.</p>
+            <p>SRP aplicado a librerías y extensiones.</p>
+          </section>
+          <section>
+            <p>Spine.js</p>
+                      <pre><code> 
+  class Contact extend Spine.Model
+    @configure "Contact", "name"
+    @extend Spine.Model.Local
+ </code></pre>
+          </section>
+
+        </section>
+
+        <section>
+
+
+        <section>
+          <h2>Observer pattern</h2>
+          <embed src="img/observer.svg" type="image/svg+xml" />
+        </section>
+                  <section>
+<pre><code>
+  // Backbone
+  var object = {};
+
+  _.extend(object, Backbone.Events);
+
+  object.on("alert", function(msg) {
+    alert("Triggered " + msg);
+  });
+
+  object.trigger("alert", "an event");
+
+  // Spine
+  Tasks.bind "create", (foo, bar) -> alert(foo + bar)
+  Tasks.trigger "create", "some", "data"
+
+  // PJAX
+  $('#main').pjax('a.pjax')
+  .on('pjax:start', function() { $('#loading').show() })
+  .on('pjax:end',   function() { $('#loading').hide() })
+  
+</code></pre>
+        </section>
+        </section>
+
+        <section>
+          <h2>Signup wizard</h2>
+          <ol>
+            <li>El primer paso es para información básica.</li>
+            <li>El segundo paso es para información de promociones.</li>
+          </ol>
+        </section>
+
+        <section>
+          <p>Signup Wizard</p>
+          <pre><code>
+  function showStepOne() {
+    $("#step-1").show()
+    // ...
+  }
+
+  function showStepTwo() {
+    $("#step-1").hide()
+    $("#step-2").show()
+    // ...
+  }
+
+</code></pre>
+        </section>
+
+        <section>
+          <h2>Signup wizard</h2>
+          <ol>
+            <li>El primer paso es para información básica.</li>
+            <li>El segundo paso es para información secundaria.</li>
+            <li>El tercer paso es para información de promociones.</li>
+          </ol>
+        </section>
+
+
+        <section>
+          <p>Signup Wizard</p>
+          <pre><code>
+  function showStepOne() {
+    $("#step-1").show()
+    // ...
+  }
+
+  function showStepTwo() {
+    $("#step-1").hide()
+    $("#step-2").show()
+    // ...
+  }
+
+  function showStepThree() {
+    $("#step-2").hide()
+    $("#step-3").show()
+    // ...
+  }
+
+</code></pre>
+        </section>
+
+        <section>
+          <p>Signup Wizard 2</p>
+          <pre><code>
+  $mainInfo.on("enter", function() {
+    // ...
+    $mainInfo.show()
+  })
+  $mainInfo.on("leave", function() {
+    $mainInfo.hide()
+    // ...
+  })
+
+  // Al inicio
+  $mainInfo.trigger("enter")
+
+  // "Observador"
+  $mainInfo.on("leave", function() {
+    $profileInfo.trigger("enter")
+  })
+
+  coolWizardBuilder($mainInfo).then($profileInfo).then($promoInfo)
+
+</code></pre>
+        </section>
+
+
+        <section>
+          <img src="http://www.codeproject.com/KB/architecture/SOLIDPrinciplesInOOD/dggn8fwf_33cq6mtncq_b.jpg" width="500"/>
+        </section>
+
+        <section>
+          <img src="http://lostechies.com/derickbailey/files/2011/03/DependencyInversionPrinciple_0278F9E2.jpg">
+        </section>
+
+        <section>
+          <h2>Dependency Inversion Principle</h2>
+          <blockquote>Depend on abstractions, not concretions.</blockqoute>
+        </section>
+
+        <section>
+          <section>
+            <img src="http://mitpress.mit.edu/sicp/full-text/book/cover.jpg"/>
+          </section>
+          <section>
+            <img src="http://www-fp.pearsonhighered.com/assets/hip/images/bigcovers/013476904X.jpg">
+          </section>
+        </section>
+
+        <section>
+          <p>Users</p>
+          <pre><code>
+  // save user
+  $.ajax({
+    type: 'POST',
+    url: "/users",
+    data: user_data,
+    success: success
+  });
+
+  // update user
+  $.ajax({
+    type: 'PUT',
+    url: "/users/1",
+    data: user_data,
+    success: success
+  });
+</code></pre>
+        </section>
+
+                <section>
+          <p>Users</p>
+          <pre><code>
+  // save user
+  saveUser = function(user_data, success...) {
+    $.ajax({
+      type: 'POST',
+      url: "/users",
+      data: user_data,
+      success: success
+    });
+  }
+
+  // update user
+  updateUser = function(user_data, success...) {
+    $.ajax({
+      type: 'PUT',
+      url: "/users/1",
+      data: user_data,
+      success: success
+    });
+  }
+  
+</code></pre>
+        </section>
+
+        <section>
+          <img src="https://fbcdn-sphotos-e-a.akamaihd.net/hphotos-ak-ash3/150210_10151270549411072_1797046863_n.jpg">
+        </section>
+
+        <section>
+          <h2>App de registro de eventos de New Futuro</h2>
+          <ol>
+            <li>Selecciona un evento.</li>
+            <li>Contiene la lista de miembros pre-registrados para dicho evento.</li>
+            <li>Confirma quiénes se han registrado.</li>
+            <li>Registra nuevos miembros.</li>
+          </ol>
+        </section>
+
+        <section>
+          <h2>App de registro de eventos de New Futuro</h2>
+          <ol>
+            <li>Es fácil de instalar. Drag and drop una carpeta y doble click en index.html.</li>
+            <li>Online: Carga la lista de usuarios pre-registrados.</li>
+            <li>Offline: Confirma quiénes se han registrado.</li>
+            <li>Offline: Registra nuevos miembros.</li>
+            <li>Offline: Exportar información en un CSV.</li>
+            <li>Online: Envía información de miembros a NewFuturo.com.</li>
+          </ol>
+        </section>
+
+          <section>
+            <h2>Repository pattern</h2>
+            <embed src="img/repository.svg" type="image/svg+xml" />
+          </section>
+
+          <section>
+            <h2>Factory method pattern</h2>
+            <p>Método para delegar instanciamiento.</p>
+            <img src="http://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Factory_Method_pattern_in_LePUS3.png/300px-Factory_Method_pattern_in_LePUS3.png">
+            <pre><code>
+              factory.create(MyFactory, options)
+              factory.create(MyOtherFactory, options)
+
+              // Factories
+              Storage.create()              // RestStorage
+              Storage.create({local: true}) // LocalStorage
+
+              // derbyjs
+              store = derby.createStore(options)
+            </code></pre>
+          </section>
+
+        </section>
+
+        <section>
+          <img src="http://lostechies.com/derickbailey/files/2011/03/DependencyInversionPrinciple_0278F9E2.jpg">
+        </section>
+
+        <section>
+          <h1>¿Cómo empezar?</h1>
+          <ul>
+            <li>Estudiar un principio a la vez. Comenzar haciendo refactorings.</li>
+            <li>No abusar de los principios.</li>
+            <li>El error más común al inicio es crear complejidad innecesaria.</li>
+            <li>Test Driven Development.</li>
+            <li>Code Katas.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Working effectively with legacy code</h2>
+          <p>Legacy code: Código sin pruebas.</p>
+          <p><a href="http://ljcbookclub.wordpress.com/2011/11/04/working-effectively-with-legacy-code/"</a></p>
+        </section>
+
+      </div>
+
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.min.js"></script>
+
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: 'plugin/markdown/showdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>
