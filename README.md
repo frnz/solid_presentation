@@ -1,5 +1,5 @@
 # Solid Principles Presentation
 
-## For Costa Rica JS group
+For Costa Rica JS group
 
 En español. :p
